@@ -1,4 +1,5 @@
 var express        = require('express'),
+    path           = require('path'),
     bodyParser     = require('body-parser'),
     methodOverride = require('method-override'),
     errorHandler   = require('errorhandler'),
@@ -10,12 +11,14 @@ var app = module.exports = express();
 
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(methodOverride());
-app.use(express.static(__dirname + '/'));
-app.use('/build', express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 var env = process.env.NODE_ENV;
 if ('development' == env) {
@@ -34,5 +37,6 @@ app.get('/api/events', api.events);
 app.post('/api/events', api.event);
 app.delete('/api/events/:eventId', api.event);
 
-app.listen(8080);
-console.log('Magic happens on port 8080...');
+var port = process.env.PORT || 8080;
+app.listen(port);
+console.log('Server is running on port ' + port + '...');
